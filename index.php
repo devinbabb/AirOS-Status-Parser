@@ -93,7 +93,7 @@ if ($_POST) {
         );
     }
 
-function iprange($ip,$mask=24,$return_array=FALSE) {
+function iprange($ip, $mask ,$return_array) {
     $corr=(pow(2,32)-1)-(pow(2,32-$mask)-1);
     $first=ip2long($ip) & ($corr);
     $length=pow(2,32-$mask)-1;
@@ -124,13 +124,13 @@ function ping($host, $port, $timeout) {
         return round((($tA - $tB) * 1000), 0)." ms";
 }
 
-$test = iprange($_POST['ips'], $_POST['netmask'],TRUE);
+$test = iprange($_POST['ips'], $_POST['netmask'], TRUE);
 
 for($i = 0; $i < count($test); $i++) {
         ob_flush();
         flush();
         if($rtadata = ping($test[$i], 80, 0.100)) {
-                echo $test[$i] . ' - <span style="color:green"> Getting Data Online. RTA: </span>' . $rtadata;
+                echo $test[$i] . ' - <span style="color:green"> Online. RTA: </span>' . $rtadata;
 		$data = get_ubnt_stats($test[$i], $logins);
 		$radio_data[$test[$i]] = $data;
                 $online_stack[] = $test[$i];
@@ -188,12 +188,48 @@ for($i = 0; $i < count($test); $i++) {
 
 <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 <table>
-<tr><td colspan="4"><b>Ip Address / Netmask:</b><br /></td></tr>
-<tr><td colspan="4"><textarea name="ips" cols="15" rows="1"><?php echo isset($_POST['ips']) ? $_POST['ips'] : ''; ?></textarea><textarea name="netmask" cols="4" rows="1"><?php echo isset($_POST['netmask']) ? $_POST['netmask'] : '32'; ?></textarea>
-</td></tr>
-<tr><td><b>Username:</b></td><td><input type="text" size="20" name="username" value="<?php echo isset($_POST['username']) ? $_POST['username'] : 'ubnt'; ?>" /></td><td><b>Password:</b></td><td><input type="password" name="password" value="<?php echo isset($_POST['password']) ? $_POST['password'] : ''; ?>" size="20" /></td></tr>
-<tr><td><b>Secondary Username:</b></td><td><input type="text" size="20" name="username2" value="<?php echo isset($_POST['username2']) ? $_POST['username2'] : 'ubnt'; ?>" /></td><td><b>Password:</b></td><td><input type="password" name="password2" value="<?php echo isset($_POST['password2']) ? $_POST['password2'] : ''; ?>" size="20" /></td></tr>
-</table><br />
+<tr>
+<td colspan="4">
+<b>Ip Address / Netmask:</b>
+<br />
+</td>
+</tr>
+<tr>
+<td colspan="4">
+<textarea name="ips" cols="15" rows="1"><?php echo isset($_POST['ips']) ? $_POST['ips'] : ''; ?></textarea>
+<textarea name="netmask" cols="4" rows="1"><?php echo isset($_POST['netmask']) ? $_POST['netmask'] : '32'; ?></textarea>
+</td>
+</tr>
+<tr>
+<td>
+<b>Username:</b>
+</td>
+<td>
+<input type="text" size="20" name="username" value="<?php echo isset($_POST['username']) ? $_POST['username'] : 'ubnt'; ?>" />
+</td>
+<td>
+<b>Password:</b>
+</td>
+<td>
+<input type="password" name="password" value="<?php echo isset($_POST['password']) ? $_POST['password'] : ''; ?>" size="20" />
+</td>
+</tr>
+<tr>
+<td>
+<b>Secondary Username:</b>
+</td>
+<td>
+<input type="text" size="20" name="username2" value="<?php echo isset($_POST['username2']) ? $_POST['username2'] : 'ubnt'; ?>" />
+</td>
+<td>
+<b>Password:</b>
+</td>
+<td>
+<input type="password" name="password2" value="<?php echo isset($_POST['password2']) ? $_POST['password2'] : ''; ?>" size="20" />
+</td>
+</tr>
+</table>
+<br />
 <input type="submit" value="Go" />
 </form>
 <?php
