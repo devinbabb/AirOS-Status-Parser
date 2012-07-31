@@ -286,19 +286,33 @@ for($i = 0; $i < count($test); $i++) {
 </form>
 <?php
 if (isset($radio_data)) {
-    echo '<br /><br />';
-    echo '<table border="0" cellspacing="1" cellpadding="4" width="850">';
-    echo '<tr align="center" style="background-color:#ddd">';
-    echo '<td><b>IP</b></td>';
-    echo '<td><b>Name</b></td>';
-    echo '<td><b>Mode</b></td>';
-    echo '<td><b>Firmware</b></td>';
-    echo '<td><b>Uptime</b></td>';
-    echo '<td><b>LAN</b></td>';
-    echo '<td><b>Freq/Width</b></td>';
-    echo '<td><b>Signal</b></td>';
-    echo '<td><b>Noise</b></td>';
-    echo '</tr>';
+    	echo '<br /><br />';
+    	echo '<table border="0" cellspacing="1" cellpadding="4" width="850">';
+   	echo '<tr align="center" style="background-color:#ddd">';
+   	echo '<td><b>IP</b></td>';
+    	echo '<td><b>Name</b></td>';
+    	echo '<td><b>Mode</b></td>';
+    	echo '<td><b>Firmware</b></td>';
+    	echo '<td><b>Uptime</b></td>';
+    	echo '<td><b>LAN MAC</b></td>';
+    	echo '<td><b>LAN</b></td>';
+	echo '<td><b>WLAN MAC</b></td>';
+	echo '<td><b>SSID</b></td>';
+	echo '<td><b>Security</b></td>';
+	echo '<td><b>WDS</b></td>';
+	echo '<td><b>Distance</b></td>';
+	echo '<td><b>Connections</b></td>';
+	echo '<td><b>Signal</b></td>';
+	echo '<td><b>Chains</b></td>';
+	echo '<td><b>Freq/Width</b></td>';
+    	echo '<td><b>Noise</b></td>';
+    	echo '<td><b>TX Rate</b></td>';
+	echo '<td><b>RX Rate</b></td>';
+	echo '<td><b>AMQ</b></td>';
+	echo '<td><b>AMC</b></td>';
+	echo '<td><b>CCQ</b></td>';
+
+    	echo '</tr>';
     for ($bgcolor = '#fff'; list($ip,$data) = each($radio_data); $bgcolor = $bgcolor == '#fff' ? '#eee' : '#fff') {
         echo '<tr align="center" style="background-color:' . $bgcolor . '">';
         echo '<td><a href="http://' . $ip . '" target="_blank">' . $ip . '</a></td>';
@@ -306,19 +320,37 @@ if (isset($radio_data)) {
         echo '<td>' . $data['mode'] . '</td>';
         echo '<td>' . $data['fw'] . '</td>';
         echo '<td>' . $data['uptime'] . '</td>';
-        echo '<td>' . $data['lan'] . '</td>';
-        echo '<td>' . $data['freq'] . ' MHz/' . $data['width'] . ' MHz</td>';
-        if ($data['signal'] <= -70)
+        echo '<td>' . $data['lan_mac'] . '</td>';
+	echo '<td>' . $data['lan'] . '</td>';
+	echo '<td>' . $data['wlan_mac'] . '</td>';
+        echo '<td>' . $data['ssid'] . '</td>';
+	echo '<td>' . $data['security'] . '</td>';
+	if($data['wds'] == 0)
+                echo '<td>No</td>';
+        else
+                echo '<td>Yes</td>';
+     
+        echo '<td>' . $data['distance'] . '</td>';
+	echo '<td>' . $data['connections'] . '</td>';
+	if ($data['signal'] <= -70)
             echo '<td style="color:red">' . $data['signal'] . ' dBm</td>';
         else
             echo '<td>' . $data['signal'] . ' dBm</td>';
 
+        echo '<td>' . $data['chains'] . '</td>';
+        echo '<td>' . $data['freq'] . ' MHz/' . $data['width'] . ' MHz</td>';
         if ($data['noise'] >= -89)
             echo '<td style="color:red">' . $data['noise'] . ' dBm</td>';
         else
             echo '<td>' . $data['noise'] . ' dBm</td>';
-        echo '</tr>';
-    }
+	echo '<td>' . $data['tx'] . '</td>';
+        echo '<td>' . $data['rx'] . '</td>';
+	echo '<td>' . $data['amq'] . '</td>';
+        echo '<td>' . $data['amc'] . '</td>';
+	echo '<td>' . $data['ccq'] . '</td>';
+    	echo '</tr>';
+
+	}
     echo '</table>';
     
     $conflicts = array();
