@@ -32,6 +32,53 @@ function get_ubnt_stats($ip, $logins) {
         curl_setopt($ch, CURLOPT_POSTFIELDS, $login_post_data);
         curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie_file);
         $result = curl_exec($ch);
+
+	if ($result) {
+            	$data = json_decode($result);
+		$rawversiondata = $data->host->fwversion;
+		$version = substr($rawversiondata, 1, 3);
+                if (isset($data->host->hostname)) {
+		$radio_data = array(
+                    	'name' => $data->host->hostname,
+                    	'mode' => $data->wireless->mode == 'sta' ? 'Station' : 'Access Point',
+                    	'fw' => $data->host->fwversion,
+                    	'uptime' => sprintf('%.2f', $data->host->uptime / 86400) . ' days',
+                    	'dfs' => $data->wireless->channel,
+                   	'freq' => preg_replace('/[^0-9]+/', '', $data->wireless->frequency),
+                    	'channel' => $data->wireless->channel,
+                    	'width' => $data->wireless->chwidth,
+                    	'signal' => $data->wireless->signal,
+                    	'noise' => $data->wireless->noisef,
+                    	'wds' => $data->wireless->wds,
+                    	'ssid' => $data->wireless->essid,
+                    	'security' => $data->wireless->security,
+                    	'distance' => sprintf('%.2f', $data->wireless->distance * 0.000621371192) . 'mi',
+                    	'connections' => $data->wireless->count,
+                    	'ccq' => sprintf('%.1f', $data->wireless->ccq / 10) . '%',
+                    	'ame' => $data->wireless->polling->enabled,
+                    	'amq' => $data->wireless->polling->quality,
+                    	'amc' => $data->wireless->polling->capacity,
+                    	'wlan_mac' => $data->wireless->apmac,
+                    	'tx' => $data->wireless->txrate,
+                    	'rx' => $data->wireless->rxrate,
+                    	'retries' => $data->wireless->stats->tx_retries,
+                    	'err_other' => $data->wireless->stats->err_other,
+                    	'chains' => $data->wireless->chains,
+		//	'lan' => $data->interfaces[1]->status->speed . ($data->interfaces[1]->status->duplex ? 'Full' : 'Half'),
+		//	'lan_mac' => $data->interfaces[1]->hwaddr
+		);
+		if($version < 5.5) {
+			$radio_data['lan'] = isset($data->lan->status[0]->plugged) ? ($data->lan->status[0]->plugged ? $data->lan->status[0]->speed . "mbps-" . ($data->lan->status[0]->duplex ? 'Full' : 'Half') : 'Unplugged') : $data->lan->status[0];
+                    	$radio_data['lan_mac'] = $data->lan->hwaddr;
+		} else {
+			$radio_data['lan'] = $data->interfaces[1]->status->speed . ($data->interfaces[1]->status->duplex ? 'Full' : 'Half');
+                       	$radio_data['lan_mac'] = $data->interfaces[1]->hwaddr;
+		}
+                break;               
+         	}
+	}
+
+/*
         if ($result) {
             $data = json_decode($result);
             if (isset($data->host->hostname)) {
@@ -49,6 +96,7 @@ function get_ubnt_stats($ip, $logins) {
                 break;
             }
         }
+*/
     }
     unlink($cookie_file);
     return $radio_data;
