@@ -92,7 +92,58 @@ if ($_POST) {
             'pass' => $_POST['password2']
         );
     }
-    
+
+function iprange($ip,$mask=24,$return_array=FALSE) {
+    $corr=(pow(2,32)-1)-(pow(2,32-$mask)-1);
+    $first=ip2long($ip) & ($corr);
+    $length=pow(2,32-$mask)-1;
+    if (!$return_array) {
+    return array(
+        'first'=>$first,
+        'size'=>$length+1,
+        'last'=>$first+$length,
+        'first_ip'=>long2ip($first),
+        'last_ip'=>long2ip($first+$length)
+        );
+    }
+    $ips=array();
+    for ($i=0;$i<=$length;$i++) {
+        $ips[]=long2ip($first+$i);
+    }
+    return $ips;
+}
+
+
+function ping($host, $port, $timeout) {
+        $tB = microtime(true);
+        $fP = fSockOpen($host, $port, $errno, $errstr, $timeout);
+        if (!$fP) {
+                return 0;
+        }
+        $tA = microtime(true);
+        return round((($tA - $tB) * 1000), 0)." ms";
+}
+
+$test = iprange($_POST['ips'], $_POST['netmask'],TRUE);
+
+for($i = 0; $i < count($test); $i++) {
+        ob_flush();
+        flush();
+        if($rtadata = ping($test[$i], 80, 0.100)) {
+                echo $test[$i] . ' - <span style="color:green"> Getting Data Online. RTA: </span>' . $rtadata;
+		$data = get_ubnt_stats($test[$i], $logins);
+		$radio_data[$test[$i]] = $data;
+                $online_stack[] = $test[$i];
+        } else {
+                echo $test[$i] . ' - <span style="color:red">' . 'Offline' . '.</span>';
+                $offline_stack[] = $test[$i];
+        }
+        echo "<br />";
+        ob_flush();
+        flush();
+}
+
+/*    
     $ips = preg_split('/[\r\n\s]+/', $_POST['ips']);
     foreach ($ips as $ip) {
         if (!($ip = trim($ip))) continue;
@@ -128,6 +179,7 @@ if ($_POST) {
             flush();
         }
     }
+*/
     echo '<script type="text/javascript">location.href=\'#freqin\';</script>';
 }
 ?>
@@ -136,8 +188,9 @@ if ($_POST) {
 
 <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 <table>
-<tr><td colspan="4"><b>Radio IPs or netblocks:</b><br /></td></tr>
-<tr><td colspan="4"><textarea name="ips" cols="65" rows="14"><?php echo isset($_POST['ips']) ? $_POST['ips'] : ''; ?></textarea></td></tr>
+<tr><td colspan="4"><b>Ip Address / Netmask:</b><br /></td></tr>
+<tr><td colspan="4"><textarea name="ips" cols="15" rows="1"><?php echo isset($_POST['ips']) ? $_POST['ips'] : ''; ?></textarea><textarea name="netmask" cols="4" rows="1"><?php echo isset($_POST['netmask']) ? $_POST['netmask'] : '32'; ?></textarea>
+</td></tr>
 <tr><td><b>Username:</b></td><td><input type="text" size="20" name="username" value="<?php echo isset($_POST['username']) ? $_POST['username'] : 'ubnt'; ?>" /></td><td><b>Password:</b></td><td><input type="password" name="password" value="<?php echo isset($_POST['password']) ? $_POST['password'] : ''; ?>" size="20" /></td></tr>
 <tr><td><b>Secondary Username:</b></td><td><input type="text" size="20" name="username2" value="<?php echo isset($_POST['username2']) ? $_POST['username2'] : 'ubnt'; ?>" /></td><td><b>Password:</b></td><td><input type="password" name="password2" value="<?php echo isset($_POST['password2']) ? $_POST['password2'] : ''; ?>" size="20" /></td></tr>
 </table><br />
