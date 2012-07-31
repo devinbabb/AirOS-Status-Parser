@@ -130,9 +130,13 @@ for($i = 0; $i < count($test); $i++) {
         ob_flush();
         flush();
         if($rtadata = ping($test[$i], 80, 0.100)) {
-                echo $test[$i] . ' - <span style="color:green"> Online. RTA: </span>' . $rtadata;
-		$data = get_ubnt_stats($test[$i], $logins);
-		$radio_data[$test[$i]] = $data;
+                echo $test[$i] . ' - <span style="color:green"> Online. RTA: </span>' . $rtadata . ' Retrieving Data: ';
+		if($data = get_ubnt_stats($test[$i], $logins)) {
+			$radio_data[$test[$i]] = $data;
+			echo ' <span style="color:red">Success! </span> ';
+		} else {
+			echo ' <span style="color:red">Failed! </span> ';
+		}
                 $online_stack[] = $test[$i];
         } else {
                 echo $test[$i] . ' - <span style="color:red">' . 'Offline' . '.</span>';
